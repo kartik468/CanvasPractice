@@ -6,6 +6,19 @@
     width: 90%;
     outline: 2px dashed red;
 }
-#stretch{
+
+#stretch1 {
+    display: none;
+}
+
+#stretch2 {
+    display: none;
+}
+
+#stretch3 {
+    display: none;
+}
+
+#stretch4 {
     display: none;
 }
