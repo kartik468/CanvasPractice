@@ -24,6 +24,7 @@ var SILAnimation = (function() {
 
         this.scaleXFactor = null;
         this.scaleYFactor = null;
+        this.intervalTime = null;
     }
 
     SILAnimation.prototype.init = function() {
@@ -36,6 +37,8 @@ var SILAnimation = (function() {
         this.canvas.height = this.container.clientHeight;
         this.container.appendChild(this.canvas);
 
+        this.setIntervalTime();
+
         // this.drawImage(this.currentFrame);
         // var self = this;
         // window.addEventListener("resize", function(event) {
@@ -47,6 +50,13 @@ var SILAnimation = (function() {
             self.onWindowResize(event);
         });
 
+    };
+
+    SILAnimation.prototype.setIntervalTime = function() {
+        var frameRate = this.silData.frameRate;
+        var noOfFrames = this.silData.frames.length;
+        var totalTime = noOfFrames / frameRate * 1000;
+        this.intervalTime = totalTime / noOfFrames;
     };
 
     SILAnimation.prototype.populateScaleFactors = function() {
@@ -137,7 +147,7 @@ var SILAnimation = (function() {
             } else {
                 clearInterval(window.animationInterval);
             }
-        }, 300);
+        }, this.intervalTime);
     };
 
     // SILAnimation.prototype.goToFrame = function(frameNumber) {
