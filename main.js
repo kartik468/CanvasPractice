@@ -12,7 +12,10 @@ document.addEventListener("readystatechange", function(event) {
         container.appendChild(canvas);
 
         // drawing
-        window.mydata = data;
+        window.mydata = data1;
+        // window.mydata = data2;
+        // window.mydata = data3;
+        // window.mydata = data4;
         var frameNumber = 0;
         window.animationInterval = setInterval(function() {
             if (mydata.frames[frameNumber]) {
