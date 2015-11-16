@@ -10,24 +10,45 @@ document.addEventListener("readystatechange", function(event) {
         canvas.width = container.clientWidth;
         canvas.height = container.clientHeight;
         container.appendChild(canvas);
+        window.scaleXFactor = null;
+        window.scaleYFactor = null;
+        window.mainHeight = 600;
+        window.mainWidth = 800;
+        populateScaleFactors();        
+
+        window.addEventListener("resize", function(event) {
+            onWindowResize(event);
+        });
 
         // drawing
         window.mydata = data1;
         // window.mydata = data2;
         // window.mydata = data3;
         // window.mydata = data4;
-        var frameNumber = 0;
+        window.currentFrame = 0;
         window.animationInterval = setInterval(function() {
-            if (mydata.frames[frameNumber]) {
+            if (mydata.frames[currentFrame]) {
                 this.canvas.width = this.canvas.width;
-                drawFrame(frameNumber);
-                frameNumber++;
+                drawFrame(currentFrame);
+                currentFrame++;
             } else {
                 clearInterval(window.animationInterval);
             }
-        }, 50);
+        }, 200);
     }
 });
+
+var populateScaleFactors = function(){
+    scaleXFactor = container.clientWidth/mainWidth;
+    scaleYFactor = container.clientHeight/mainHeight;
+};
+
+var onWindowResize = function() {
+    populateScaleFactors();
+    this.canvas.width = container.clientWidth;
+    this.canvas.height = container.clientHeight;
+    drawFrame(currentFrame-1);
+}
 
 var drawFrame = function(frameNumber) {
     var frameData = mydata.frames[frameNumber];
@@ -48,8 +69,8 @@ var drawFrame = function(frameNumber) {
         instanceData.dHeight = instanceData.sHeight;
         var rotation = frameInstance.rotation;
         canvasContext.save();
-        canvasContext.translate(frameInstance.translate[0], frameInstance.translate[1]);
-        canvasContext.scale(frameInstance.scale[0], frameInstance.scale[1]);
+        canvasContext.translate(frameInstance.translate[0]*scaleXFactor, frameInstance.translate[1]*scaleYFactor);
+        canvasContext.scale(frameInstance.scale[0]*scaleXFactor, frameInstance.scale[1]*scaleYFactor);
         canvasContext.rotate(rotation);
         drawImage(instanceData);
         canvasContext.restore();
