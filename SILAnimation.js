@@ -1,4 +1,4 @@
-var SILAnimation = (function() {
+window.SILAnimation = (function() {
     "use strict";
     var mainHeight = 600,
         mainWidth = 800;
@@ -49,13 +49,13 @@ var SILAnimation = (function() {
         window.addEventListener("resize", function(event) {
             self.onWindowResize(event);
         });
-
+        this.drawFrame(this.currentFrame);
     };
 
     SILAnimation.prototype.setIntervalTime = function() {
-        var frameRate = this.silData.frameRate;
-        var noOfFrames = this.silData.frames.length;
-        var totalTime = noOfFrames / frameRate * 1000;
+        var frameRate = this.silData.frameRate,
+            noOfFrames = this.silData.frames.length,
+            totalTime = noOfFrames / frameRate * 1000;
         this.intervalTime = totalTime / noOfFrames;
     };
 
@@ -78,28 +78,29 @@ var SILAnimation = (function() {
     //     this.canvasContext.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     // };
     SILAnimation.prototype.drawImage = function(instance) {
-        var img = this.spriteImage;
-        var sx = instance.sx;
-        var sy = instance.sy;
-        var sWidth = instance.sWidth;
-        var sHeight = instance.sHeight;
-        var dx = instance.dx;
-        var dy = instance.dy;
-        var dWidth = instance.dWidth;
-        var dHeight = instance.dHeight;
+        var img = this.spriteImage,
+            sx = instance.sx,
+            sy = instance.sy,
+            sWidth = instance.sWidth,
+            sHeight = instance.sHeight,
+            dx = instance.dx,
+            dy = instance.dy,
+            dWidth = instance.dWidth,
+            dHeight = instance.dHeight;
         this.canvasContext.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     }
 
     SILAnimation.prototype.drawFrame = function(frameNumber) {
-        var frameData = this.silData.frames[frameNumber];
-        var mainInstances = this.silData.instances;
-        var frameSubInstances = frameData.instances;
-        var self = this;
+        var frameData = this.silData.frames[frameNumber],
+            mainInstances = this.silData.instances,
+            frameSubInstances = frameData.instances,
+            self = this;
 
         frameSubInstances.forEach(function(frameInstance) {
             // console.info(frameInstance);
-            var instanceData = {};
-            var instance = mainInstances[frameInstance.instanceIndex];
+            var instanceData = {},
+                rotation,
+                instance = mainInstances[frameInstance.instanceIndex];
             instanceData.sx = instance.x;
             instanceData.sy = instance.y;
             instanceData.sWidth = instance.width;
@@ -108,7 +109,7 @@ var SILAnimation = (function() {
             instanceData.dy = 0; //frameInstance.translate[1];
             instanceData.dWidth = instanceData.sWidth;
             instanceData.dHeight = instanceData.sHeight;
-            var rotation = frameInstance.rotation;
+            rotation = frameInstance.rotation;
             self.canvasContext.save();
             self.canvasContext.translate(frameInstance.translate[0] * self.scaleXFactor, frameInstance.translate[1] * self.scaleYFactor);
             self.canvasContext.scale(frameInstance.scale[0] * self.scaleXFactor, frameInstance.scale[1] * self.scaleYFactor);
