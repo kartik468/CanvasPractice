@@ -1,7 +1,5 @@
 window.SILAnimation = (function() {
     "use strict";
-    var mainHeight = 600,
-        mainWidth = 800;
 
     function SILAnimation(options) {
         this.containerId = options.containerId;
@@ -12,10 +10,10 @@ window.SILAnimation = (function() {
         this.currentFrame = options.currentFrame || 0;
         // this.noOfFrames = options.noOfFrames;
         // this.intervalTime = options.intervalTime || 100;
-        // this.repeat = options.repeat || false;
+        this.repeat = options.repeat || false;
         // this.vertical = options.vertical || true;
-        // this.fOnComplete = options.fOnComplete;
-        // this.context = options.context;
+        this.fOnComplete = options.fOnComplete;
+        this.context = options.context;
         this.container = null;
         this.spriteImage = null;
         this.canvas = null;
@@ -25,6 +23,9 @@ window.SILAnimation = (function() {
         this.scaleXFactor = null;
         this.scaleYFactor = null;
         this.intervalTime = null;
+
+        this.mainWidth = this.silData.width;
+        this.mainHeight = this.silData.height;
     }
 
     SILAnimation.prototype.init = function() {
@@ -38,12 +39,6 @@ window.SILAnimation = (function() {
         this.container.appendChild(this.canvas);
 
         this.setIntervalTime();
-
-        // this.drawImage(this.currentFrame);
-        // var self = this;
-        // window.addEventListener("resize", function(event) {
-        //     self.onWindowResize(event);
-        // });
         this.populateScaleFactors();
         var self = this;
         window.addEventListener("resize", function(event) {
@@ -60,23 +55,10 @@ window.SILAnimation = (function() {
     };
 
     SILAnimation.prototype.populateScaleFactors = function() {
-        this.scaleXFactor = this.container.clientWidth / mainWidth;
-        this.scaleYFactor = this.container.clientHeight / mainHeight;
+        this.scaleXFactor = this.container.clientWidth / this.mainWidth;
+        this.scaleYFactor = this.container.clientHeight / this.mainHeight;
     };
 
-    // SILAnimation.prototype.drawImage = function(currentFrame) {
-    //     // console.log(currentFrame);
-    //     var img = this.spriteImage;
-    //     var sx = 0;
-    //     var sy = currentFrame * this.frameHeight;
-    //     var sWidth = this.frameWidth;
-    //     var sHeight = this.frameHeight;
-    //     var dx = 0;
-    //     var dy = 0;
-    //     var dWidth = this.container.clientWidth;
-    //     var dHeight = this.container.clientHeight;
-    //     this.canvasContext.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
-    // };
     SILAnimation.prototype.drawImage = function(instance) {
         var img = this.spriteImage,
             sx = instance.sx,
@@ -88,9 +70,12 @@ window.SILAnimation = (function() {
             dWidth = instance.dWidth,
             dHeight = instance.dHeight;
         this.canvasContext.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
-    }
+    };
 
     SILAnimation.prototype.drawFrame = function(frameNumber) {
+        if (frameNumber === -1) {
+            frameNumber = 0;
+        }
         var frameData = this.silData.frames[frameNumber],
             mainInstances = this.silData.instances,
             frameSubInstances = frameData.instances,
@@ -117,50 +102,28 @@ window.SILAnimation = (function() {
             self.drawImage(instanceData);
             self.canvasContext.restore();
         })
-    }
+    };
 
     SILAnimation.prototype.startBgSequence = function() {
-        // var self = this;
-        // this.animationInterval = window.setInterval(function() {
-        //     self.currentFrame++;
-        //     if (self.currentFrame === (self.noOfFrames)) {
-        //         if (self.repeat) {
-        //             self.currentFrame = 0;
-        //         } else {
-        //             self.currentFrame--;
-        //             self.stopBgSequence();
-        //             self.fOnComplete.call(self.context);
-        //             self.removeCanvas();
-        //             return;
-        //         }
-        //     }
-        //     // console.log("currentFrame: " + currentFrame);
-        //     self.clearCanvas();
-        //     self.drawImage(self.currentFrame);
-        // }, this.intervalTime);
         var self = this;
-        window.animationInterval = setInterval(function() {
+        this.animationInterval = setInterval(function() {
             if (self.silData.frames[self.currentFrame]) {
                 // self.canvas.width = self.canvas.width;
                 self.clearCanvas();
                 self.drawFrame(self.currentFrame);
                 self.currentFrame++;
             } else {
-                clearInterval(window.animationInterval);
+                if (self.repeat) {
+                    self.currentFrame = 0;
+                } else {
+                    clearInterval(self.animationInterval);
+                    if (self.fOnComplete && self.context) {
+                        self.fOnComplete.call(self.context);
+                    }
+                }
             }
         }, this.intervalTime);
     };
-
-    // SILAnimation.prototype.goToFrame = function(frameNumber) {
-    //     if (frameNumber < 1 || frameNumber > this.noOfFrames) {
-    //         console.warn("Invalid frameNumber");
-    //         return;
-    //     }
-    //     frameNumber--;
-    //     this.clearCanvas();
-    //     this.currentFrame = frameNumber;
-    //     this.drawImage(frameNumber);
-    // }
 
     SILAnimation.prototype.onWindowResize = function(event) {
         this.populateScaleFactors();
@@ -169,11 +132,13 @@ window.SILAnimation = (function() {
         this.drawFrame(this.currentFrame - 1);
     };
 
-    // SILAnimation.prototype.updateCanvasDimensions = function() {
-    //     this.canvas.width = this.container.clientWidth;
-    //     this.canvas.height = this.container.clientHeight;
-    //     this.drawImage(this.currentFrame);
-    // };
+    SILAnimation.prototype.hideAnimation = function() {
+        this.canvas.style.display = "none"
+    }
+
+    SILAnimation.prototype.showAnimation = function() {
+        this.canvas.style.display = ""
+    }
 
     SILAnimation.prototype.clearCanvas = function() {
         this.canvas.width = this.canvas.width;
