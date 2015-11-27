@@ -1,3 +1,5 @@
+/* globals window */
+
 window.SILAnimation = (function() {
     "use strict";
 
@@ -13,6 +15,7 @@ window.SILAnimation = (function() {
         this.repeat = options.repeat || false;
         // this.vertical = options.vertical || true;
         this.fOnComplete = options.fOnComplete;
+        this.fOnProgress = options.fOnProgress;
         this.context = options.context;
         this.container = null;
         this.spriteImage = null;
@@ -33,7 +36,7 @@ window.SILAnimation = (function() {
         this.spriteImage = document.getElementById(this.imageId);
         this.canvas = document.createElement("canvas");
         this.canvasContext = this.canvas.getContext("2d");
-        this.canvas.setAttribute("id", this.containerId + "-canvas");
+        this.canvas.setAttribute("id", this.imageId + "-canvas");
         this.canvas.width = this.container.clientWidth;
         this.canvas.height = this.container.clientHeight;
         this.container.appendChild(this.canvas);
@@ -80,7 +83,7 @@ window.SILAnimation = (function() {
             mainInstances = this.silData.instances,
             frameSubInstances = frameData.instances,
             self = this;
-
+        this.clearCanvas();
         frameSubInstances.forEach(function(frameInstance) {
             // console.info(frameInstance);
             var instanceData = {},
@@ -101,16 +104,19 @@ window.SILAnimation = (function() {
             self.canvasContext.rotate(rotation);
             self.drawImage(instanceData);
             self.canvasContext.restore();
-        })
+        });
     };
 
     SILAnimation.prototype.startBgSequence = function() {
         var self = this;
+        this.stopBgSequence();
         this.animationInterval = setInterval(function() {
             if (self.silData.frames[self.currentFrame]) {
                 // self.canvas.width = self.canvas.width;
-                self.clearCanvas();
                 self.drawFrame(self.currentFrame);
+                if (self.fOnProgress && self.context) {
+                    self.fOnProgress.call(self.context, self.currentFrame);
+                }
                 self.currentFrame++;
             } else {
                 if (self.repeat) {
@@ -133,16 +139,16 @@ window.SILAnimation = (function() {
     };
 
     SILAnimation.prototype.hideAnimation = function() {
-        this.canvas.style.display = "none"
-    }
+        this.canvas.style.display = "none";
+    };
 
     SILAnimation.prototype.showAnimation = function() {
-        this.canvas.style.display = ""
-    }
+        this.canvas.style.display = "";
+    };
 
     SILAnimation.prototype.clearCanvas = function() {
         this.canvas.width = this.canvas.width;
-    }
+    };
 
     SILAnimation.prototype.stopBgSequence = function() {
         window.clearInterval(this.animationInterval);
